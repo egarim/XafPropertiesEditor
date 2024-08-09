@@ -1,0 +1,40 @@
+﻿@using XafPropertiesEditor.Module.BusinessObjects
+<DxComboBox Data="@Data"
+            @bind-Value="@Value.SelectedProperty"
+            CssClass="cw-480"
+            
+            InputId="cbOverview" />
+
+@code {
+    IEnumerable<string> Data { get; set; }
+   
+  
+    [Parameter]
+    public PropertyObject Value { get; set; }
+   
+    protected override async Task OnInitializedAsync()
+    {
+        this.Value.PropertyChanged+=   (s, e) => {
+            if (e.PropertyName == nameof(PropertyObject.DataType))
+            {
+                if(Value==null)
+                {
+                    this.Data=new List<string>();
+                    this.StateHasChanged();
+                    return;
+                }
+                if (Value.DataType != null)
+                {
+                    var ci=Value.Session.GetClassInfo(Value.DataType);
+                    this.Data = ci.Members.Where(x=> x.IsPublic && x.IsPublic).Select(x => x.Name).ToList();
+                 
+                }
+                
+                StateHasChanged();
+            }
+
+        };
+
+        this.Data = new List<string>();
+    }
+}
